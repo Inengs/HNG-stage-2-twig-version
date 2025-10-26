@@ -1,0 +1,83 @@
+{% extends "components/layout.twig" %}
+
+{% block title %}Dashboard - TicketFlow{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen">
+    <div class="max-w-container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800">Dashboard</h1>
+            <button
+                onclick="handleLogout()"
+                class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+            >
+                Logout
+            </button>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid md:grid-cols-4 gap-6 mb-8" id="statsGrid">
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+                <h3 class="text-gray-600 text-sm font-semibold mb-2">Total Tickets</h3>
+                <p class="text-4xl font-bold text-gray-800" id="totalTickets">0</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+                <h3 class="text-gray-600 text-sm font-semibold mb-2">Open Tickets</h3>
+                <p class="text-4xl font-bold text-gray-800" id="openTickets">0</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-amber-500">
+                <h3 class="text-gray-600 text-sm font-semibold mb-2">In Progress</h3>
+                <p class="text-4xl font-bold text-gray-800" id="inProgressTickets">0</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-gray-500">
+                <h3 class="text-gray-600 text-sm font-semibold mb-2">Resolved</h3>
+                <p class="text-4xl font-bold text-gray-800" id="closedTickets">0</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">Quick Actions</h2>
+            <div class="space-y-4">
+                
+                    href="/tickets"
+                    class="w-full md:w-auto inline-block px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition text-center"
+                >
+                    Manage Tickets
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Check authentication
+if (!auth.isAuthenticated()) {
+    window.location.href = '/auth/login';
+}
+
+// Load statistics
+function loadStats() {
+    const tickets = storage.getTickets();
+    
+    document.getElementById('totalTickets').textContent = tickets.length;
+    document.getElementById('openTickets').textContent = tickets.filter(t => t.status === 'open').length;
+    document.getElementById('inProgressTickets').textContent = tickets.filter(t => t.status === 'in_progress').length;
+    document.getElementById('closedTickets').textContent = tickets.filter(t => t.status === 'closed').length;
+}
+
+function handleLogout() {
+    auth.logout();
+    window.location.href = '/';
+}
+
+// Load stats on page load
+loadStats();
+</script>
+{% endblock %}

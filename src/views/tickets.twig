@@ -1,0 +1,312 @@
+{% extends "components/layout.twig" %}
+
+{% block title %}Ticket Management - TicketFlow{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen">
+    <div class="max-w-container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8 flex-wrap gap-4">
+            <h1 class="text-4xl font-bold text-gray-800">Ticket Management</h1>
+            <div class="flex gap-3">
+                <a href="/dashboard" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+                    Dashboard
+                </a>
+                <button
+                    onclick="handleLogout()"
+                    class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                >
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Create/Edit Form -->
+        <div id="ticketForm" class="bg-white rounded-lg shadow-lg p-8 mb-8 hidden">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800" id="formTitle">Create New Ticket</h2>
+
+            <form id="ticketFormElement" class="space-y-6">
+                <input type="hidden" id="editingTicketId" value="">
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Title <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="title"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Enter ticket title"
+                    />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Description
+                    </label>
+                    <textarea
+                        id="description"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows="4"
+                        placeholder="Enter ticket description"
+                    ></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Status <span class="text-red-500">*</span>
+                    </label>
+                    <select
+                        id="status"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                        <option value="open">Open</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Priority
+                    </label>
+                    <select
+                        id="priority"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                        <option value="">Select priority</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-3">
+                    <button
+                        type="submit"
+                        class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+                        id="submitButton"
+                    >
+                        Create Ticket
+                    </button>
+                    <button
+                        type="button"
+                        onclick="resetForm()"
+                        class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <button
+            id="createButton"
+            onclick="showForm()"
+            class="mb-8 px-8 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition"
+        >
+            + Create New Ticket
+        </button>
+
+        <!-- Tickets List -->
+        <div>
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">All Tickets</h2>
+
+            <div id="emptyState" class="bg-white rounded-lg shadow-md p-12 text-center hidden">
+                <p class="text-gray-500 text-lg">
+                    No tickets yet. Create your first ticket to get started!
+                </p>
+            </div>
+
+            <div id="ticketsList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Tickets will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Check authentication
+if (!auth.isAuthenticated()) {
+    window.location.href = '/auth/login';
+}
+
+let editingTicketId = null;
+
+// Load tickets
+function loadTickets() {
+    const tickets = storage.getTickets();
+    const ticketsList = document.getElementById('ticketsList');
+    const emptyState = document.getElementById('emptyState');
+
+    if (tickets.length === 0) {
+        emptyState.classList.remove('hidden');
+        ticketsList.classList.add('hidden');
+    } else {
+        emptyState.classList.add('hidden');
+        ticketsList.classList.remove('hidden');
+        
+        ticketsList.innerHTML = tickets.map(ticket => `
+            <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-xl font-semibold text-gray-800">${ticket.title}</h3>
+                    <span class="px-3 py-1 rounded-full text-sm font-medium border status-${ticket.status}">
+                        ${ticket.status.replace('_', ' ')}
+                    </span>
+                </div>
+                ${ticket.description ? `<p class="text-gray-600 mb-4">${ticket.description}</p>` : ''}
+                ${ticket.priority ? `<p class="text-sm text-gray-500 mb-4">Priority: ${ticket.priority}</p>` : ''}
+                <div class="flex gap-3">
+                    <button
+                        onclick="editTicket('${ticket.id}')"
+                        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                    >
+                        Edit
+                    </button>
+                    <button
+                        onclick="deleteTicket('${ticket.id}')"
+                        class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                    >
+                        Delete
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
+// Show form
+function showForm() {
+    document.getElementById('ticketForm').classList.remove('hidden');
+    document.getElementById('createButton').classList.add('hidden');
+}
+
+// Reset form
+function resetForm() {
+    document.getElementById('ticketFormElement').reset();
+    document.getElementById('editingTicketId').value = '';
+    document.getElementById('formTitle').textContent = 'Create New Ticket';
+    document.getElementById('submitButton').textContent = 'Create Ticket';
+    document.getElementById('ticketForm').classList.add('hidden');
+    document.getElementById('createButton').classList.remove('hidden');
+    editingTicketId = null;
+    clearErrors();
+}
+
+// Edit ticket
+function editTicket(id) {
+    const tickets = storage.getTickets();
+    const ticket = tickets.find(t => t.id === id);
+    
+    if (ticket) {
+        editingTicketId = id;
+        document.getElementById('editingTicketId').value = id;
+        document.getElementById('title').value = ticket.title;
+        document.getElementById('description').value = ticket.description || '';
+        document.getElementById('status').value = ticket.status;
+        document.getElementById('priority').value = ticket.priority || '';
+        
+        document.getElementById('formTitle').textContent = 'Edit Ticket';
+        document.getElementById('submitButton').textContent = 'Update Ticket';
+        
+        showForm();
+        clearErrors();
+    }
+}
+
+// Delete ticket
+function deleteTicket(id) {
+    if (confirm('Are you sure you want to delete this ticket?')) {
+        try {
+            storage.deleteTicket(id);
+            toast.show('Ticket deleted successfully!', 'success');
+            loadTickets();
+        } catch (error) {
+            toast.show('Failed to delete ticket. Please try again.', 'error');
+        }
+    }
+}
+
+// Handle form submission
+document.getElementById('ticketFormElement').addEventListener('submit', function(e) {
+    e.preventDefault();
+    clearErrors();
+
+    const title = document.getElementById('title').value;
+    const description = document.getElementById('description').value;
+    const status = document.getElementById('status').value;
+    const priority = document.getElementById('priority').value;
+
+    // Validation
+    let hasErrors = false;
+
+    if (!validators.required(title)) {
+        showError('title', 'Title is required');
+        hasErrors = true;
+    }
+
+    if (!validators.required(status)) {
+        showError('status', 'Status is required');
+        hasErrors = true;
+    }
+
+    if (!validators.inArray(status, ['open', 'in_progress', 'closed'])) {
+        showError('status', 'Status must be "open", "in_progress", or "closed"');
+        hasErrors = true;
+    }
+
+    if (description && !validators.maxLength(description, 500)) {
+        showError('description', 'Description must be less than 500 characters');
+        hasErrors = true;
+    }
+
+    if (hasErrors) return;
+
+    // Save ticket
+    try {
+        const ticketData = { title, description, status, priority };
+        
+        if (editingTicketId) {
+            storage.updateTicket(editingTicketId, ticketData);
+            toast.show('Ticket updated successfully!', 'success');
+        } else {
+            storage.addTicket(ticketData);
+            toast.show('Ticket created successfully!', 'success');
+        }
+
+        resetForm();
+        loadTickets();
+    } catch (error) {
+        toast.show('Failed to save ticket. Please try again.', 'error');
+    }
+});
+
+function handleLogout() {
+    auth.logout();
+    window.location.href = '/';
+}
+
+// Load tickets on page load
+loadTickets();
+</script>
+
+<style>
+.status-open {
+    background-color: rgb(220 252 231);
+    color: rgb(22 101 52);
+    border-color: rgb(187 247 208);
+}
+.status-in_progress {
+    background-color: rgb(254 243 199);
+    color: rgb(146 64 14);
+    border-color: rgb(253 230 138);
+}
+.status-closed {
+    background-color: rgb(243 244 246);
+    color: rgb(31 41 55);
+    border-color: rgb(229 231 235);
+}
+</style>
+{% endblock %}

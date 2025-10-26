@@ -1,0 +1,41 @@
+# PHP/Twig-specific ignores
+/vendor/
+composer.lock
+/cache/
+/logs/
+
+# Environment files with sensitive data
+.env
+.env.local
+.env.*.local
+
+# Twig cache
+/twig_cache/
+/var/cache/
+
+# Temporary files
+*.log
+*.cache
+*.bak
+*.swp
+*~
+
+# Editor-specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Build artifacts and dependencies
+node_modules/  # In case you add frontend build tools
+dist/
+build/
+
+# Local development files
+ Homestead.yaml
+ Homestead.json
+.phpunit.result.cache

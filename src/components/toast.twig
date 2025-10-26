@@ -1,0 +1,27 @@
+{# templates/components/toast.twig #} {% set toast_id =
+toast_id|default('toast-' ~ random(10000, 99999)) %}
+<div
+  class="fixed top-4 right-4 {{ type|default('info') == 'success' ? 'bg-green-500' : type|default('info') == 'error' ? 'bg-red-500' : 'bg-blue-500' }} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-in"
+  id="{{ toast_id }}"
+  role="alert"
+  aria-live="assertive"
+  data-toast-id="{{ toast_id }}"
+>
+  {{ message | escape }}
+</div>
+
+//
+<script>
+  //   document.addEventListener('DOMContentLoaded', function () {
+  //     const toast = document.getElementById('{{ toast_id|escape('js') }}');
+  //     if (toast) {
+  //       setTimeout(() => {
+  //         toast.remove();
+  //         if (window.onToastClose) {
+  //           window.onToastClose('{{ toast_id|escape('js') }}');
+  //         }
+  //       }, 3000);
+  //     }
+  //   });
+  //
+</script>

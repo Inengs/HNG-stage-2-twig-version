@@ -1,0 +1,40 @@
+<div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 ticket-card" data-ticket-id="{{ ticket.id }}">
+    <div class="flex justify-between items-start mb-3">
+        <h3 class="text-xl font-semibold text-gray-800">{{ ticket.title }}</h3>
+        <span class="px-3 py-1 rounded-full text-sm font-medium border status-badge status-{{ ticket.status }}">
+            {{ ticket.status|replace({'_': ' '}) }}
+        </span>
+    </div>
+    {% if ticket.description %}
+        <p class="text-gray-600 mb-4">{{ ticket.description }}</p>
+    {% endif %}
+    {% if ticket.priority %}
+        <p class="text-sm text-gray-500 mb-4">Priority: {{ ticket.priority }}</p>
+    {% endif %}
+    <div class="flex gap-3">
+        <button onclick="editTicket('{{ ticket.id }}')" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+            Edit
+        </button>
+        <button onclick="deleteTicket('{{ ticket.id }}')" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition">
+            Delete
+        </button>
+    </div>
+</div>
+
+<style>
+.status-open {
+    background-color: rgb(220 252 231);
+    color: rgb(22 101 52);
+    border-color: rgb(187 247 208);
+}
+.status-in_progress {
+    background-color: rgb(254 243 199);
+    color: rgb(146 64 14);
+    border-color: rgb(253 230 138);
+}
+.status-closed {
+    background-color: rgb(243 244 246);
+    color: rgb(31 41 55);
+    border-color: rgb(229 231 235);
+}
+</style>

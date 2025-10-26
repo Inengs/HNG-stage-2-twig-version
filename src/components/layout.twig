@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TicketFlow{% endblock %}</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        <main class="grow">
+            {% block content %}{% endblock %}
+        </main>
+        <footer class="bg-gray-800 text-white py-6 mt-auto">
+            <div class="max-w-container mx-auto px-4 text-center">
+                <p>&copy; 2025 TicketFlow. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/storage.js"></script>
+    <script src="/js/main.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
