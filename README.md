@@ -1,6 +1,6 @@
 # Live URL
 
-https://hng-stage-2-twig-version.vercel.app/
+hng-stage-2-twig-version-production.up.railway.app
 
 # TicketFlow - Twig/PHP Implementation
 
@@ -157,78 +157,3 @@ Any email and password combination will work for testing:
 
 - **Email**: test@example.com
 - **Password**: password123
-
-## Error Handling
-
-The app handles the following error scenarios:
-
-1. **Form Validation Errors**
-
-   - Empty required fields
-   - Invalid email format
-   - Password mismatch
-   - Invalid status values
-   - Description length exceeded
-
-2. **Authentication Errors**
-
-   - Invalid credentials
-   - Expired sessions
-   - Unauthorized access attempts
-
-3. **CRUD Operation Errors**
-   - Failed to create ticket
-   - Failed to update ticket
-   - Failed to delete ticket
-
-All errors display user-friendly messages via:
-
-- Inline error messages (below form fields)
-- Toast notifications (top-right corner)
-
-## Accessibility Features
-
-- Semantic HTML5 elements
-- Proper heading hierarchy
-- Focus states for interactive elements
-- Color contrast compliance (WCAG AA)
-- Alt text for images
-- Keyboard navigation support
-- ARIA labels where appropriate
-
-## Responsive Design
-
-- **Mobile** (< 768px): Stacked layout, full-width elements
-- **Tablet** (768px - 1024px): 2-column grid
-- **Desktop** (> 1024px): 3-column grid, max-width 1440px
-
-## Twig Features Used
-
-- **Template Inheritance** - `{% extends %}` for layouts
-- **Blocks** - `{% block %}` for content sections
-- **Filters** - `|replace` for string manipulation
-- **Conditionals** - `{% if %}` for conditional rendering
-- **Loops** - Server-rendered in this implementation
-- **Components** - Reusable template partials
-
-## API Endpoints
-
-- `POST /api/login` - Set PHP session
-- `POST /api/logout` - Clear PHP session
-
-## Known Issues
-
-None at this time.
-
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-
-## Development
-
-### Running Tests
-
-No automated tests included in it.
